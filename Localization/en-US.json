@@ -1,5 +1,9 @@
 {
     "welcome": {
-    	"title": "It works."
+        "title": "It works."
+    },
+    "version": {
+        "notDefined": "Version not defined!",
+        "author": "Gabriel Araujo"
     }
 }
