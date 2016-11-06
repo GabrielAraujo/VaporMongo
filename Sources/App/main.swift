@@ -5,15 +5,7 @@ import Auth
 import Foundation
 import Cookies
 
-let auth = AuthMiddleware(user: User.self) { value in
-    return Cookie(
-        name: "auth",
-        value: value,
-        expires: Date().addingTimeInterval(60 * 60 * 5), // 5 hours
-        secure: true,
-        httpOnly: true
-    )
-}
+let auth = AuthMiddleware(user: User.self)
 
 let drop = Droplet()
 drop.preparations = [Post.self, User.self]
@@ -22,19 +14,7 @@ try drop.addProvider(VaporMongo.Provider.self)
 
 drop.group("users") { users in
     
-    //Any call
-//    users.post("login") { req in
-//        guard let key = req.auth.header?.header else {
-//            throw Abort.badRequest
-//        }
-//        
-//        let creds = AccessToken(string: key)
-//        try req.auth.login(creds)
-//        
-//        return try JSON(node: ["message": "Logged in."])
-//    }
-    
-    users.post("login") { req in
+    users.post("token") { req in
         guard
             let username = req.data["username"]?.string,
             let password = req.data["password"]?.string
@@ -43,7 +23,7 @@ drop.group("users") { users in
         }
         
         let creds = APIKey(id: username, secret: password)
-        try req.auth.login(creds)
+        let user = try req.auth.login(creds)
         
         return try JSON(node: ["message": "Logged in.."])
     }
