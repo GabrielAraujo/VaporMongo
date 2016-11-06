@@ -21,6 +21,10 @@ final class User: Model {
         case unsupportedCredentials
     }
     
+    init(id: Node) {
+        self.id = id
+    }
+    
     init(data: Node) {
         self.data = data
     }
@@ -72,7 +76,26 @@ extension User: Auth.User {
     
     
     static func register(credentials: Credentials) throws -> Auth.User {
-        throw Abort.custom(status: .badRequest, message: "Register not supported.")
+        let user: User?
+        
+        switch credentials {
+        case _ as Identifier:
+            throw Abort.custom(status: .badRequest, message: "Registration per id not implemented!")
+        case _ as AccessToken:
+            throw Abort.custom(status: .badRequest, message: "Registration per access_token not implemented!")
+        case let apiKey as APIKey:
+            user = try User.query().filter("email", apiKey.id).filter("password", apiKey.secret).first()
+        default:
+            throw Abort.custom(status: .badRequest, message: "Invalid credentials.")
+        }
+        
+        guard let u = user else {
+            throw Abort.custom(status: .badRequest, message: "User not found")
+        }
+        
+        return u
+        
+        //throw Abort.custom(status: .badRequest, message: "Register not supported.")
     }
 }
 
