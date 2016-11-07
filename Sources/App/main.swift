@@ -1,8 +1,8 @@
 import Vapor
 import VaporMongo
 import FluentMongo
-import Auth
 import Foundation
+import Auth
 import Cookies
 
 let auth = AuthMiddleware(user: User.self)
@@ -15,17 +15,31 @@ try drop.addProvider(VaporMongo.Provider.self)
 drop.group("users") { users in
     
     users.post("token") { req in
-        guard
-            let username = req.data["username"]?.string,
-            let password = req.data["password"]?.string
-        else {
-            throw Abort.badRequest
+        var resp:Resp!
+        do {
+            guard
+                let username = req.data["username"]?.string,
+                let password = req.data["password"]?.string
+                else {
+                    throw Abort.badRequest
+            }
+            
+            let creds = APIKey(id: username, secret: password)
+            try req.auth.login(creds)
+            
+            let user = try req.user()
+            
+            resp = try Resp(success: true, error: nil, message: "Success", data: Node(node: user))
+        }catch let e {
+            resp = Resp(success: false, error: 1, message: "Generic error, \(e.localizedDescription)", data: nil)
         }
         
-        let creds = APIKey(id: username, secret: password)
-        let user = try req.auth.login(creds)
+        guard let r = resp else {
+            resp = Resp(success: false, error: 5005, message: "Error, some strange thing happend", data: nil)
+            return resp
+        }
         
-        return try JSON(node: ["message": "Logged in.."])
+        return r
     }
     
     let protect = ProtectMiddleware(error:
