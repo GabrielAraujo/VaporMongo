@@ -15,6 +15,29 @@ struct Resp : ResponseRepresentable {
     let error: Int?
     let message: String
     let data: Node?
+    
+    init(success:Bool, error:Int?, message:String, data:Node?) {
+        self.success = success
+        self.error = error
+        self.message = message
+        self.data = data
+    }
+    
+    //Success
+    init(data:Node) {
+        self.success = true
+        self.error = nil
+        self.message = "Success!"
+        self.data = data
+    }
+    
+    //Error
+    init(error:Errors) {
+        self.success = false
+        self.error = error.getId()
+        self.message = error.getMessage()
+        self.data = nil
+    }
 
     func makeResponse() throws -> Response {
         let json = try JSON(node:

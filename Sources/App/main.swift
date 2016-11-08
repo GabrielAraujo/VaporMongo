@@ -21,7 +21,7 @@ drop.group("users") { users in
                 let username = req.data["username"]?.string,
                 let password = req.data["password"]?.string
                 else {
-                    throw Abort.badRequest
+                    throw Errors.missingUsernameOrPassword
             }
             
             let creds = APIKey(id: username, secret: password)
@@ -29,13 +29,17 @@ drop.group("users") { users in
             
             let user = try req.user()
             
-            resp = try Resp(success: true, error: nil, message: "Success", data: Node(node: user))
-        }catch let e {
-            resp = Resp(success: false, error: 1, message: "Generic error, \(e.localizedDescription)", data: nil)
+            resp = try Resp(data: Node(node: user))
+        }catch let e as Errors {
+            resp = Resp(error: e)
+        }catch let er {
+            resp = Resp(error: Errors.generic)
+            print("Unhandled error")
         }
         
         guard let r = resp else {
-            resp = Resp(success: false, error: 5005, message: "Error, some strange thing happend", data: nil)
+            resp = Resp(error: Errors.invalidResp)
+            print("Unhandled error")
             return resp
         }
         
