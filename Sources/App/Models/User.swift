@@ -70,14 +70,16 @@ extension User: Auth.User {
         //case let id as Identifier:
         case _ as Identifier:
             //user = try User.find(id.id)
-            throw Abort.custom(status: .badRequest, message: "Registration per id not implemented!")
+            throw Errors.registrationPerIdNotFound
+            //throw Abort.custom(status: .badRequest, message: "Registration per id not implemented!")
         case let accessToken as AccessToken:
             //Queries for the user
             user = try User.query().filter("access_token", accessToken.string).first()
             //Validate if the user was fetched
             guard let u = user else {
                 //If not throw error
-                throw Abort.custom(status: .badRequest, message: "User not found")
+                throw Errors.userNotFound
+                //throw Abort.custom(status: .badRequest, message: "User not found")
             }
             
             guard
@@ -85,7 +87,8 @@ extension User: Auth.User {
                 let username = u.username,
                 let password = u.password
                 else {
-                    throw Abort.custom(status: .badRequest, message: "User found - Missing info")
+                    throw Errors.missingUsernameOrPasswordOrAccessToken
+                    //throw Abort.custom(status: .badRequest, message: "User found - Missing info")
             }
             
             //Create a token based with the one stored in the db
@@ -93,7 +96,8 @@ extension User: Auth.User {
             if try jwt.verifySignatureWith(HS256(key: "\(username)\(password)")) {
                 return u
             }else{
-                throw Abort.custom(status: .badRequest, message: "Invalid token")
+                throw Errors.invalidToken
+                //throw Abort.custom(status: .badRequest, message: "Invalid token")
             }
         case let apiKey as APIKey:
             user = try User.query().filter("username", apiKey.id).filter("password", apiKey.secret).first()
@@ -101,14 +105,15 @@ extension User: Auth.User {
             //Validate if the user was fetched
             guard var u = user else {
                 //If not throw error
-                throw Abort.custom(status: .badRequest, message: "User not found")
+                throw Errors.userNotFound
+                //throw Abort.custom(status: .badRequest, message: "User not found")
             }
             
             guard
                 let username = u.username,
                 let password = u.password
                 else {
-                    throw Abort.custom(status: .badRequest, message: "User found - Missing info")
+                    throw Errors.missingUsernameOrPassword
             }
             
             let jwt = try JWT(payload: Node([ExpirationTimeClaim(60, leeway: 10)]), signer: HS256(key: "\(username)\(password)"))
@@ -120,7 +125,8 @@ extension User: Auth.User {
             
             return u
         default:
-            throw Abort.custom(status: .badRequest, message: "Invalid credentials.")
+            throw Errors.invalidCredentials
+            //throw Abort.custom(status: .badRequest, message: "Invalid credentials.")
         }
     }
     
@@ -136,11 +142,13 @@ extension User: Auth.User {
         case let apiKey as APIKey:
             user = try User.query().filter("email", apiKey.id).filter("password", apiKey.secret).first()
         default:
-            throw Abort.custom(status: .badRequest, message: "Invalid credentials.")
+            throw Errors.invalidCredentials
+            //throw Abort.custom(status: .badRequest, message: "Invalid credentials.")
         }
         
         guard let u = user else {
-            throw Abort.custom(status: .badRequest, message: "User not found")
+            throw Errors.userNotFound
+            //throw Abort.custom(status: .badRequest, message: "User not found")
         }
         
         return u
@@ -154,7 +162,8 @@ import HTTP
 extension Request {
     func user() throws -> User {
         guard let user = try auth.user() as? User else {
-            throw Abort.custom(status: .badRequest, message: "Invalid user type.")
+            throw Errors.invalidUser
+            //throw Abort.custom(status: .badRequest, message: "Invalid user type.")
         }
         
         return user
