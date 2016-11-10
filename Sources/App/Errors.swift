@@ -22,16 +22,22 @@ enum Errors : Error {
     
     case invalidToken
     
+    case notAuthorized
+    
+    case missingToken
+    
     static let ids = [
         generic : 0,
         invalidResp : 1,
         invalidCredentials: 5,
         missingUsernameOrPassword: 10,
-        missingUsernameOrPassword: 11,
+        missingUsernameOrPasswordOrAccessToken: 11,
         invalidUser: 12,
         userNotFound: 13,
         invalidToken: 20,
-        registrationPerIdNotFound: 40
+        registrationPerIdNotFound: 40,
+        notAuthorized: 50,
+        missingToken: 60
     ]
     
     static let messages = [
@@ -43,7 +49,9 @@ enum Errors : Error {
         invalidUser : "Invalid user.",
         userNotFound : "User not found.",
         invalidToken: "Invalid token.",
-        registrationPerIdNotFound: "Registration per ID was not implemented."
+        registrationPerIdNotFound: "Registration per ID was not implemented.",
+        notAuthorized: "You are not authorized for this location.",
+        missingToken: "The token is missing in header Authorization!"
     ]
     
     func getId() -> Int {
@@ -59,4 +67,6 @@ enum Errors : Error {
         }
         return msg
     }
+    
+    
 }

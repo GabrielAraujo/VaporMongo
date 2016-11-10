@@ -5,11 +5,20 @@ import Foundation
 import Auth
 import Cookies
 
-let auth = AuthMiddleware(user: User.self)
+let auth = AuthMiddleware(user: User.self) { value in
+    return Cookie(
+        name: "auth",
+        value: value,
+        expires: Date().addingTimeInterval(60 * 60 * 5), // 5 hours
+        secure: true,
+        httpOnly: true
+    )
+}
 
 let drop = Droplet()
 drop.preparations = [Post.self, User.self]
 drop.middleware.append(auth)
+drop.middleware.append(ErrorsMiddleware())
 try drop.addProvider(VaporMongo.Provider.self)
 
 drop.group("users") { users in
@@ -32,7 +41,7 @@ drop.group("users") { users in
             resp = try Resp(data: Node(node: user))
         }catch let e as Errors {
             resp = Resp(error: e)
-        }catch let er {
+        }catch  _ {
             resp = Resp(error: Errors.generic)
             print("Unhandled error")
         }
@@ -46,13 +55,35 @@ drop.group("users") { users in
         return r
     }
     
-    let protect = ProtectMiddleware(error:
-        Abort.custom(status: .forbidden, message: "Not authorized.")
-    )
-    users.group(protect) { secure in
-        secure.get("secure") { req in
-            return try req.user()
+    users.get("bearer") {
+        req in
+        var resp:Resp!
+        do {
+            guard let token = req.auth.header?.bearer else {
+                resp = Resp(error: Errors.missingToken)
+                print("Missing token")
+                return resp
+            }
+            
+            try req.auth.login(token)
+            
+            let user = try req.user()
+            
+            resp = try Resp(data: Node(node: user))
+        }catch let e as Errors {
+            resp = Resp(error: e)
+        }catch  _ {
+            resp = Resp(error: Errors.generic)
+            print("Unhandled error")
         }
+        
+        guard let r = resp else {
+            resp = Resp(error: Errors.invalidResp)
+            print("Unhandled error")
+            return resp
+        }
+        
+        return r
     }
 }
 
