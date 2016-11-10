@@ -31,6 +31,13 @@ struct Resp : ResponseRepresentable {
         self.data = data
     }
     
+    init(message:String) {
+        self.success = true
+        self.error = nil
+        self.message = message
+        self.data = nil
+    }
+    
     //Error
     init(error:Errors) {
         self.success = false

@@ -5,15 +5,7 @@ import Foundation
 import Auth
 import Cookies
 
-let auth = AuthMiddleware(user: User.self) { value in
-    return Cookie(
-        name: "auth",
-        value: value,
-        expires: Date().addingTimeInterval(60 * 60 * 5), // 5 hours
-        secure: true,
-        httpOnly: true
-    )
-}
+let auth = AuthMiddleware(user: User.self)
 
 let drop = Droplet()
 drop.preparations = [Post.self, User.self]
