@@ -32,4 +32,4 @@ MongoDB (from humongous) is a free and open-source cross-platform document-orien
 
 ### Ubuntu Installation
 * [Installation](https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-16-04) - By [Mateusz Papiernik](https://www.digitalocean.com/community/users/mati) 
-* [Vapor Mongo Installation](http://stackoverflow.com/a/37184845/3831196)
+* [RoboMongo Installation](http://stackoverflow.com/a/37184845/3831196)
