@@ -1,9 +1,9 @@
 # VaporMongo
 
-## Help
-[Vapor Docs](http://docs.vapor.codes)
-[Postman Collection](https://www.getpostman.com/collections/2a5806fe02adb831b3b2)
-[JWT](https://github.com/siemensikkema/vapor-jwt) - By [siemensikkema](https://github.com/siemensikkema) 
+- Help
+* [Vapor Docs](http://docs.vapor.codes)
+* [Postman Collection](https://www.getpostman.com/collections/2a5806fe02adb831b3b2)
+* [JWT](https://github.com/siemensikkema/vapor-jwt) - By [siemensikkema](https://github.com/siemensikkema) 
 
 ## Vapor
 
@@ -29,5 +29,5 @@ MongoDB (from humongous) is a free and open-source cross-platform document-orien
 [Wikipedia](https://en.wikipedia.org/wiki/MongoDB)
 
 ### Ubuntu Installation
-[Installation](https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-16-04) - By [Mateusz Papiernik](https://www.digitalocean.com/community/users/mati) 
-[Vapor Mongo Installation](http://stackoverflow.com/a/37184845/3831196)
+* [Installation](https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-16-04) - By [Mateusz Papiernik](https://www.digitalocean.com/community/users/mati) 
+* [Vapor Mongo Installation](http://stackoverflow.com/a/37184845/3831196)
