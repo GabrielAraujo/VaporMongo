@@ -13,73 +13,101 @@ drop.middleware.append(auth)
 drop.middleware.append(ErrorsMiddleware())
 try drop.addProvider(VaporMongo.Provider.self)
 
-drop.group("users") { users in
-    
-    users.post("token") { req in
-        var resp:Resp!
-        do {
-            guard
-                let username = req.data["username"]?.string,
-                let password = req.data["password"]?.string
-                else {
-                    throw Errors.missingUsernameOrPassword
+drop.group("api") { api in
+    api.group("users") { users in
+        users.post("token") { req in
+            var resp:Resp!
+            do {
+                guard
+                    let username = req.data["username"]?.string,
+                    let password = req.data["password"]?.string
+                    else {
+                        throw Errors.missingUsernameOrPassword
+                }
+                
+                let creds = APIKey(id: username, secret: password)
+                try req.auth.login(creds)
+                
+                let user = try req.authUser()
+                
+                resp = try Resp(data: Node(node: user))
+            }catch let e as Errors {
+                resp = Resp(error: e)
+            }catch  _ {
+                resp = Resp(error: Errors.generic)
+                print("Unhandled error")
             }
             
-            let creds = APIKey(id: username, secret: password)
-            try req.auth.login(creds)
-            
-            let user = try req.user()
-            
-            resp = try Resp(data: Node(node: user))
-        }catch let e as Errors {
-            resp = Resp(error: e)
-        }catch  _ {
-            resp = Resp(error: Errors.generic)
-            print("Unhandled error")
-        }
-        
-        guard let r = resp else {
-            resp = Resp(error: Errors.invalidResp)
-            print("Unhandled error")
-            return resp
-        }
-        
-        return r
-    }
-    
-    users.get("bearer") {
-        req in
-        var resp:Resp!
-        do {
-            guard let token = req.auth.header?.bearer else {
-                resp = Resp(error: Errors.missingToken)
-                print("Missing token")
+            guard let r = resp else {
+                resp = Resp(error: Errors.invalidResp)
+                print("Unhandled error")
                 return resp
             }
             
-            try req.auth.login(token)
-            
-            let user = try req.user()
-            
-            resp = try Resp(data: Node(node: user))
-        }catch let e as Errors {
-            resp = Resp(error: e)
-        }catch  _ {
-            resp = Resp(error: Errors.generic)
-            print("Unhandled error")
+            return r
         }
         
-        guard let r = resp else {
-            resp = Resp(error: Errors.invalidResp)
-            print("Unhandled error")
-            return resp
+        users.post("register") { req in
+            var resp:Resp!
+            do {
+                var todo = try req.user()
+                try todo.save()
+                
+                resp = try Resp(data: Node(node: todo))
+            }catch let e as Errors {
+                resp = Resp(error: e)
+            }catch  _ {
+                resp = Resp(error: Errors.generic)
+                print("Unhandled error")
+            }
+            
+            guard let r = resp else {
+                resp = Resp(error: Errors.invalidResp)
+                print("Unhandled error")
+                return resp
+            }
+            
+            return r
         }
-        
-        return r
     }
+    
+    api.group("example") { example in
+        example.get("bearer") {
+            req in
+            var resp:Resp!
+            do {
+                guard let token = req.auth.header?.bearer else {
+                    resp = Resp(error: Errors.missingToken)
+                    print("Missing token")
+                    return resp
+                }
+                
+                try req.auth.login(token)
+                
+                let user = try req.authUser()
+                
+                resp = try Resp(data: Node(node: user))
+            }catch let e as Errors {
+                resp = Resp(error: e)
+            }catch  _ {
+                resp = Resp(error: Errors.generic)
+                print("Unhandled error")
+            }
+            
+            guard let r = resp else {
+                resp = Resp(error: Errors.invalidResp)
+                print("Unhandled error")
+                return resp
+            }
+            
+            return r
+        }
+    }
+    
+    //Resources
+    api.resource("users", UserController())
+    api.resource("posts", PostController())
 }
-
-drop.resource("posts", PostController())
 
 drop.get { req in
     return try drop.view.make("welcome", [

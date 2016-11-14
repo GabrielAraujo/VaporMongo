@@ -1,7 +1,7 @@
 import Vapor
 import HTTP
 
-final class PostController: ResourceRepresentable {
+final class UserController: ResourceRepresentable {
     func index(request: Request) throws -> ResponseRepresentable {
         var resp:Resp!
         do {
@@ -13,8 +13,8 @@ final class PostController: ResourceRepresentable {
             
             try request.auth.login(token)
             
-            let posts = try Post.all().makeNode().converted(to: JSON.self)
-            resp = try Resp(data: Node(node: posts))
+            let users = try User.all().makeNode().converted(to: JSON.self)
+            resp = try Resp(data: Node(node: users))
         }catch let e as Errors {
             resp = Resp(error: e)
         }catch  _ {
@@ -30,7 +30,7 @@ final class PostController: ResourceRepresentable {
         
         return r
     }
-
+    
     func create(request: Request) throws -> ResponseRepresentable {
         var resp:Resp!
         do {
@@ -42,7 +42,7 @@ final class PostController: ResourceRepresentable {
             
             try request.auth.login(token)
             
-            var todo = try request.post()
+            var todo = try request.user()
             try todo.save()
             
             resp = try Resp(data: Node(node: todo))
@@ -61,8 +61,8 @@ final class PostController: ResourceRepresentable {
         
         return r
     }
-
-    func show(request: Request, post: Post) throws -> ResponseRepresentable {
+    
+    func show(request: Request, user: User) throws -> ResponseRepresentable {
         var resp:Resp!
         do {
             guard let token = request.auth.header?.bearer else {
@@ -73,7 +73,7 @@ final class PostController: ResourceRepresentable {
             
             try request.auth.login(token)
             
-            resp = try Resp(data: Node(node: post))
+            resp = try Resp(data: Node(node: user))
         }catch let e as Errors {
             resp = Resp(error: e)
         }catch  _ {
@@ -89,8 +89,8 @@ final class PostController: ResourceRepresentable {
         
         return r
     }
-
-    func delete(request: Request, post: Post) throws -> ResponseRepresentable {
+    
+    func delete(request: Request, user: User) throws -> ResponseRepresentable {
         var resp:Resp!
         do {
             guard let token = request.auth.header?.bearer else {
@@ -101,9 +101,9 @@ final class PostController: ResourceRepresentable {
             
             try request.auth.login(token)
             
-            let id = post.id
+            let id = user.id
             
-            try post.delete()
+            try user.delete()
             
             resp = Resp(message: "Deleted ID: \(id!)")
         }catch let e as Errors {
@@ -133,9 +133,9 @@ final class PostController: ResourceRepresentable {
             
             try request.auth.login(token)
             
-            try Post.query().delete()
+            try User.query().delete()
             
-            resp = Resp(message: "Deleted all from posts")
+            resp = Resp(message: "Deleted all from users")
         }catch let e as Errors {
             resp = Resp(error: e)
         }catch  _ {
@@ -152,7 +152,7 @@ final class PostController: ResourceRepresentable {
         return r
     }
 
-    func update(request: Request, post: Post) throws -> ResponseRepresentable {
+    func update(request: Request, user: User) throws -> ResponseRepresentable {
         var resp:Resp!
         do {
             guard let token = request.auth.header?.bearer else {
@@ -163,16 +163,19 @@ final class PostController: ResourceRepresentable {
             
             try request.auth.login(token)
             
-            let new = try request.post()
-            var post = post
+            let new = try request.user()
+            var user = user
             
             //Update the attributes here
-            post.data = new.data
-            post.exists = new.exists
+            user.data = new.data
+            user.username = new.username
+            user.password = new.password
+            user.accessToken = new.accessToken
+            user.exists = new.exists
             
-            try post.save()
+            try user.save()
             
-            resp = try Resp(data: Node(node: post))
+            resp = try Resp(data: Node(node: user))
         }catch let e as Errors {
             resp = Resp(error: e)
         }catch  _ {
@@ -189,7 +192,7 @@ final class PostController: ResourceRepresentable {
         return r
     }
 
-    func replace(request: Request, post: Post) throws -> ResponseRepresentable {
+    func replace(request: Request, user: User) throws -> ResponseRepresentable {
         var resp:Resp!
         do {
             guard let token = request.auth.header?.bearer else {
@@ -200,8 +203,8 @@ final class PostController: ResourceRepresentable {
             
             try request.auth.login(token)
             
-            try post.delete()
-            var todo = try request.post()
+            try user.delete()
+            var todo = try request.user()
             try todo.save()
             
             resp = try Resp(data: Node(node: todo))
@@ -221,7 +224,7 @@ final class PostController: ResourceRepresentable {
         return r
     }
 
-    func makeResource() -> Resource<Post> {
+    func makeResource() -> Resource<User> {
         return Resource(
             index: index,
             store: create,
@@ -235,8 +238,8 @@ final class PostController: ResourceRepresentable {
 }
 
 extension Request {
-    func post() throws -> Post {
+    func user() throws -> User {
         guard let json = json else { throw Abort.badRequest }
-        return try Post(node: json)
+        return try User(node: json)
     }
 }
