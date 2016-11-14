@@ -36,8 +36,8 @@ The user is used for authentication and authorization.
 * The data property can also be an array.
 
 ## Object
-The object is used to manage the generic object.
-* The user's collection in mongo must be **objects**
+The object is used to manage generic objects.
+* The objects's collection in mongo must be **objects**
 
 ### Object structure
 ```json
