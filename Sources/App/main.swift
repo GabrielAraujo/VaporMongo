@@ -8,7 +8,7 @@ import Cookies
 let auth = AuthMiddleware(user: User.self)
 
 let drop = Droplet()
-drop.preparations = [Post.self, User.self]
+drop.preparations = [Post.self, User.self, Object.self]
 drop.middleware.append(auth)
 drop.middleware.append(ErrorsMiddleware())
 try drop.addProvider(VaporMongo.Provider.self)
@@ -106,6 +106,7 @@ drop.group("api") { api in
     
     //Resources
     api.resource("users", UserController())
+    api.resource("objects", ObjectController())
     api.resource("posts", PostController())
 }
 
