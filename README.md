@@ -24,13 +24,13 @@ The user is used for authentication and authorization.
 ### User structure
 ```json
 {
-    'id' : '581f3d7d1940cb25cb1b1f2d',
-    'username' : 'gabriel',
-    'password' : '12345678',
-    'data' : {
+    "id" : "581f3d7d1940cb25cb1b1f2d",
+    "username" : "gabriel",
+    "password" : "12345678",
+    "data" : {
         ...
     },
-    'access_token' : '...",
+    "access_token" : "...",
 }
 ```
 * The data property can also be an array.
@@ -42,9 +42,9 @@ The object is used to manage the generic object.
 ### Object structure
 ```json
 {
-    'id' : '581f3d7d1940cb25cb1b1f2d',
-    'type' : 'object type, used for filtering',
-    'data' : {
+    "id" : "581f3d7d1940cb25cb1b1f2d",
+    "type" : "object type, used for filtering",
+    "data" : {
         ...
     }
 }
