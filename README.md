@@ -56,7 +56,7 @@ The object is used to manage generic objects.
 ## Route
 
 ## Registration
-The path for registration is /api/users/registration and all the neccessary attributes for user like username and password should be setted.
+The path for registration is /api/users/register and all the neccessary attributes for user like username and password should be setted.
 
 ## Authorization
 Every path of the app needs the **Bearer access_token** setted in **Authorization** header of the request in order to access the data or perform an action.
