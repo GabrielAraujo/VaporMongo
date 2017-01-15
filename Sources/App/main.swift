@@ -10,7 +10,7 @@ let auth = AuthMiddleware(user: User.self)
 let drop = Droplet()
 drop.preparations = [Post.self, User.self, Object.self]
 drop.middleware.append(auth)
-drop.middleware.append(ErrorsMiddleware())
+drop.middleware.insert(ErrorsMiddleware(), at: 0)
 try drop.addProvider(VaporMongo.Provider.self)
 
 drop.group("api") { api in
